@@ -41,7 +41,7 @@ void check_neighbors(int current_cell) {
     int col = current_cell % 16;
     
     // Check each direction
-    // Up
+    // Down
     if ( (path_cost[row + 1][col] == CLEAR) && !(wall[current_cell][current_cell + 16]) ) {
         path_cost[row + 1][col] = path_cost[row][col] + 1;
         q.enQueue((row+1)*16 + col);
@@ -51,7 +51,7 @@ void check_neighbors(int current_cell) {
         path_cost[row][col + 1] = path_cost[row][col] + 1;
         q.enQueue(row*16 + (col + 1));
     }
-    // Down
+    // Up
     if ( (path_cost[row - 1][col] == CLEAR) && !(wall[current_cell][current_cell - 16]) ) {
         path_cost[row - 1][col] = path_cost[row][col] + 1;
         q.enQueue((row-1)*16 + col);
@@ -64,8 +64,8 @@ void check_neighbors(int current_cell) {
     return;
 }
 
-int main() {
-    init_layout();
+void floodfill() {
+    // S0
     clear_costs();
     // Set path cost of center cells to 0
     path_cost[16/2 - 1][16/2 - 1] = 0;
@@ -87,5 +87,5 @@ int main() {
         check_neighbors(current_cell);
     } while(!q.empty());
 
-    print_costs();
+    //print_costs();
 }

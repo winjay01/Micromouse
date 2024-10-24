@@ -1,2 +1,4 @@
+.gitignore
+.DS_Store
 src/myQueue.cpp
 src/a.out
