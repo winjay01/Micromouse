@@ -2,17 +2,26 @@
 using namespace std;
 
 // Maze representation: 16x16 unit grid
-int wall[16][16]; // wall[i][j] = 0001 means cell(i,j) has a wall on its left side only (clockwise, start at top)
+int wall[16*16][16*16]; // wall[i][j] = 1 means there is a wall between cell i and cell j
 int path_cost[16][16]; // path_cost[i][j] = k means cell (i,j) has a path cost of k to the 4 center cells
 const int CLEAR = 64;
 
 arrayQueue<int> q;
 
+// initially assume there are no walls in the maze
+void init_layout() {
+    for (int i = 0; i < 16*16; i++) {
+        for (int j = 0; j < 16*16; j++) {
+            wall[i][j] = 0;
+        }
+    }
+}
+
+// set all path costs to CLEAR (not yet set)
 void clear_costs() {
     for (int i = 0; i < 16; i++) {
         for (int j = 0; j < 16; j++) {
             path_cost[i][j] = CLEAR; // just a number to indicate a cleared path cost; 0 is used for center cells
-            //wall[i][j] = 0;
         }
     }
 }
@@ -33,22 +42,22 @@ void check_neighbors(int current_cell) {
     
     // Check each direction
     // Up
-    if ( (path_cost[row + 1][col] == CLEAR) && !(wall[row][col] & (1 << 3)) ) {
+    if ( (path_cost[row + 1][col] == CLEAR) && !(wall[current_cell][current_cell + 16]) ) {
         path_cost[row + 1][col] = path_cost[row][col] + 1;
         q.enQueue((row+1)*16 + col);
     }
     // Right
-    if ( (path_cost[row][col + 1] == CLEAR) && !(wall[row][col] & (1 << 2)) ) {
+    if ( (path_cost[row][col + 1] == CLEAR) && !(wall[current_cell][current_cell + 1]) ) {
         path_cost[row][col + 1] = path_cost[row][col] + 1;
         q.enQueue(row*16 + (col + 1));
     }
     // Down
-    if ( (path_cost[row - 1][col] == CLEAR) && !(wall[row][col] & (1 << 1)) ) {
+    if ( (path_cost[row - 1][col] == CLEAR) && !(wall[current_cell][current_cell - 16]) ) {
         path_cost[row - 1][col] = path_cost[row][col] + 1;
         q.enQueue((row-1)*16 + col);
     }
     // Left
-    if ( (path_cost[row ][col - 1] == CLEAR) && !(wall[row][col] & (1 << 0)) ) {
+    if ( (path_cost[row ][col - 1] == CLEAR) && !(wall[current_cell][current_cell - 1]) ) {
         path_cost[row][col - 1] = path_cost[row][col] + 1;
         q.enQueue(row*16 + (col - 1));
     }
@@ -56,6 +65,7 @@ void check_neighbors(int current_cell) {
 }
 
 int main() {
+    init_layout();
     clear_costs();
     // Set path cost of center cells to 0
     path_cost[16/2 - 1][16/2 - 1] = 0;
