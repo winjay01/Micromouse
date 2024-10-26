@@ -4,7 +4,7 @@ using namespace std;
 // Maze representation: 16x16 unit grid
 int wall[16*16][16*16]; // wall[i][j] = 1 means there is a wall between cell i and cell j
 int path_cost[16][16]; // path_cost[i][j] = k means cell (i,j) has a path cost of k to the 4 center cells
-const int CLEAR = 64;
+const int CLEAR = 256;
 
 arrayQueue<int> q;
 

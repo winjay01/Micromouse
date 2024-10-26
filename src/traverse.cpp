@@ -3,6 +3,11 @@ using namespace std;
 
 int path[256]; // save path traversed
 
+// Add detected wall to represntation of maze layout
+void update_layout(int cell1, int cell2) {
+    wall[cell1][cell2] = 1;
+}
+
 int in_path(int cell) {
     for (int i = 0; i < 256; i++) {
         if (path[i] == cell) return 1;
@@ -28,13 +33,13 @@ void print_path() {
 }
 
 int center_reached(int current_cell) {
-    return ((current_cell == 7*16 + 7) || (current_cell == 7*16 + 8) || (current_cell == 8*16 + 7) || (current_cell == 8*16 + 8));
+    return ((current_cell == (7*16 + 7)) || (current_cell == (7*16 + 8)) || (current_cell == (8*16 + 7)) || (current_cell == (8*16 + 8)));
 }
 
 int min(int row, int col) {
     //printf("Checking min...\n");
-    int min = 64;
-    int min_cell;
+    int min = 256;
+    int min_cell = row*16 + col;
 
     // Check cell below
     if (row < 15) {
