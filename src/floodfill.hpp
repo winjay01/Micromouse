@@ -1,4 +1,5 @@
 #include "myQueue.hpp"
+#include <iostream>
 using namespace std;
 
 // Maze representation: 16x16 unit grid
