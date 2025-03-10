@@ -2,6 +2,9 @@
 #define encoders_h
 
 struct encoders {
+  int posL; // encoder count for left motor
+  int posR; // encoder count for right motor
+  
   encoders();
   void SETUP();
   void readEncoderR();

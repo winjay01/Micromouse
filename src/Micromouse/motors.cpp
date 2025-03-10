@@ -6,8 +6,8 @@ const int RPWM2 = 10;
 const int LPWM1 = 6;
 const int LPWM2 = 9;
 
-const int FORWARD = 20;
-const int REVERSE = 21;
+const int FORWARD = 1;
+const int REVERSE = -1;
 
 motors::motors() {
 }
@@ -53,13 +53,13 @@ void motors::stop() {
 }
 
 void motors::turn_right(int speed) {
-  setMotorR(FORWARD, speed);
-  setMotorL(REVERSE, speed);
+  setMotorR(REVERSE, speed);
+  setMotorL(FORWARD, speed);
 }
 
 void motors::turn_left(int speed) {
-  setMotorR(REVERSE, speed);
-  setMotorL(FORWARD, speed);
+  setMotorR(FORWARD, speed);
+  setMotorL(REVERSE, speed);
 }
 
 void motors::forward(int speed) {

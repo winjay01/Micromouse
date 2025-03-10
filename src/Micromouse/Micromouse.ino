@@ -23,17 +23,29 @@ void setup() {
 
 void loop() {
   //PD.control_loop();
-
   if (!drove) {
-    drive_for(750, F, 30);
-    //drive_pos(30, F, 30);
+    drive_for(600, F, 30);
+    //drive_pos(100, F, 40);
     delay(STD_D);
 
-    drive_for(750, B, 30);
+    left_90(60);
+    drive_for(750, F, 30);
     //drive_pos(30, B, 30);
     delay(STD_D);
-    //drove = 1;
+    drove = 1;
   }
+}
+
+void left_90(int speed) {
+  Motors.turn_left(speed);
+  delay(500);
+  Motors.stop();
+}
+
+void right_90(int speed) {
+  Motors.turn_right(speed);
+  delay(100);
+  Motors.stop();
 }
 
 void drive(int dir, int speed) {
@@ -52,10 +64,11 @@ void drive_pos(int enc_steps, int dir, int speed) {
   drive(dir, speed);
   int steps = fabs(Encoders.getPosR() - pos);
   while(steps < enc_steps) {
-    Serial.println(steps);
+    Serial.println("Pos L: " + (String)Encoders.getPosL() + " Pos R: " + (String)Encoders.getPosR());
     steps = fabs(Encoders.getPosR() - pos);
   }
   Motors.stop();
+  Serial.println("END*** Pos L: " + (String)Encoders.getPosL() + " Pos R: " + (String)Encoders.getPosR());
   digitalWrite(LED_BUILTIN, LOW);
 }
 

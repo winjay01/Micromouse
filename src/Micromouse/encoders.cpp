@@ -7,11 +7,9 @@ const int LENCA = 3;
 const int LENCB = 4;
 
 int cell_count = 10; // # of encoder counts needed to move forward 1 cell
-int posL = 0; // encoder count for left motor
-int posR = 0; // encoder count for right motor
 int r_status, r_init_value;
 
-// Interrupts
+// Interrupt Service Routines
 void readL() {
   Encoders.readEncoderL();
 }
@@ -22,20 +20,13 @@ void readR() {
 
 ISR (PCINT0_vect) {
   r_status = digitalRead(RENCA);
-  if (r_init_value == 0) {
-    // Rising
-    if (r_status == 0) {
-      readR();
-    }
-  }
-  else {
-    if (r_status == 1) {
-      readR();
-    }
-  }
+  // Only call ISR on rising
+  if (((r_init_value == 0) && (r_status == 0)) || ((r_init_value == 1) && (r_status == 1))) readR();
 }
 
 encoders::encoders() {
+  posL = 0;
+  posR = 0;
 }
 
 void encoders::SETUP() {
@@ -64,7 +55,6 @@ void encoders::readEncoderR() {
     if (r_init_value == 0) posR--;
     else posR++;
   }
-  //Serial.println("RENCB: " + (String)b + " R Status: " + (String)r_status + " PosR: " + (String)posR);
 }
 
 void encoders::readEncoderL() {
@@ -75,7 +65,6 @@ void encoders::readEncoderL() {
   else {
     posL--;
   }
-  //Serial.println("LENCB: " + (String)b + " PosL: " + (String)posL);
 }
 
 int encoders::getPosR() {
