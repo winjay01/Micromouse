@@ -2,12 +2,11 @@
 #define pid_control_h
 
 struct pid_control {
-  float kp, ki, kd;
+  float kp[3], ki[3], kd[3];
 
   pid_control();
-  void SETUP(int kp, int ki, int kd);
-  int distance_control(int kp, int kd, int curr_time, int prev_time);
-  int angle_control(int kp, int kd, int curr_time, int prev_time);
+  void SETUP(float KP[3], float KI[3], float KD[3]);
+  int control_signal(int mode, float dt);
   void control_loop();
 };
 

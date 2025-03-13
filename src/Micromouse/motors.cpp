@@ -1,15 +1,21 @@
 #include "Arduino.h"
 #include "motors.h"
+#include "encoders.h"
+#include <math.h>
 
-const int RPWM1 = 11;
-const int RPWM2 = 10;
-const int LPWM1 = 6;
-const int LPWM2 = 9;
+const int LPWM1 = 10;
+const int LPWM2 = 11;
+const int RPWM1 = 9;
+const int RPWM2 = 6;
 
 const int FORWARD = 1;
 const int REVERSE = -1;
 
 motors::motors() {
+  F = 0;
+  B = 1;
+  L = 2;
+  R = 3;
 }
 
 void motors::SETUP() {
@@ -52,24 +58,53 @@ void motors::stop() {
   digitalWrite(LPWM2, LOW);
 }
 
-void motors::turn_right(int speed) {
-  setMotorR(REVERSE, speed);
+void motors::turn_right(int speed) {  
   setMotorL(FORWARD, speed);
+  setMotorR(REVERSE, speed);
 }
 
 void motors::turn_left(int speed) {
-  setMotorR(FORWARD, speed);
   setMotorL(REVERSE, speed);
+  setMotorR(FORWARD, speed);
 }
 
 void motors::forward(int speed) {
-  setMotorR(FORWARD, speed);
   setMotorL(FORWARD, speed);
+  setMotorR(FORWARD, speed);
 }
 
 void motors::reverse(int speed) {
-  setMotorR(REVERSE, speed);
   setMotorL(REVERSE, speed);
+  setMotorR(REVERSE, speed);
+}
+
+void motors::drive(int dir, int speed) {
+  if (dir == F) forward(speed);
+  else if (dir == B) reverse(speed);
+  else if (dir == L) turn_left(speed);
+  else if (dir == R) turn_right(speed);
+}
+
+void motors::drive_pos(int enc_steps, int dir, int speed) {
+  int pos = Encoders.getPosR();
+  digitalWrite(LED_BUILTIN, HIGH);
+  drive(dir, speed);
+  int steps = fabs(Encoders.getPosR() - pos);
+  while(steps < enc_steps) {
+    Serial.println("Pos L: " + (String)Encoders.getPosL() + " Pos R: " + (String)Encoders.getPosR());
+    steps = fabs(Encoders.getPosR() - pos);
+  }
+  stop();
+  Serial.println("END*** Pos L: " + (String)Encoders.getPosL() + " Pos R: " + (String)Encoders.getPosR());
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
+void motors::drive_for(int time, int dir, int speed) {
+  digitalWrite(LED_BUILTIN, HIGH);
+  drive(dir, speed);
+  delay(time);
+  stop();
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 motors Motors = motors();
