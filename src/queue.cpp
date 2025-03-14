@@ -1,8 +1,7 @@
 #include "queue.h"
 
-const int MAX_QUEUE = 1000;
-
 queue::queue() {
+  MAX_QUEUE = 64;
   head = -1;
   tail = -1;
 }
@@ -41,12 +40,6 @@ bool queue::dequeue() {
 int queue::front() {
   if (head == -1) return -1;
   return items[head];
-}
-
-int queue::size() {
-  if (head == -1) return 0;
-  if (tail < head) return (MAX_QUEUE - head) + (tail + 1);
-  return (tail - head) + 1;
 }
 
 queue q = queue();

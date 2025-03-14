@@ -2,15 +2,15 @@
 #define queue_h
 
 struct queue {
+  int MAX_QUEUE;
   int head, tail;
-  int items[1000];
+  int items[64];
 
   queue();
   bool empty();
   bool enqueue(int entry);
   bool dequeue();
   int front();
-  int size();
 };
 
 extern queue q;

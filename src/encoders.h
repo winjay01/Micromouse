@@ -2,9 +2,10 @@
 #define encoders_h
 
 struct encoders {
+  int LENCA, LENCB, RENCA, RENCB;
   int posL; // encoder count for left motor
   int posR; // encoder count for right motor
-  
+
   encoders();
   void SETUP();
   void readEncoderR();

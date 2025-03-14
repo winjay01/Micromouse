@@ -1,14 +1,6 @@
 #include <Arduino.h>
 #include "encoders.h"
 
-const int LENCA = 2;
-const int LENCB = 7;
-const int RENCA = 3;
-const int RENCB = 4;
-
-int cell_count = 10; // # of encoder counts needed to move forward 1 cell
-int r_status, r_init_value;
-
 // Interrupt Service Routines
 void readL() {
   Encoders.readEncoderL();
@@ -18,32 +10,22 @@ void readR() {
   Encoders.readEncoderR();
 }
 
-/*
-ISR (PCINT0_vect) {
-  r_status = digitalRead(RENCA);
-  // Only call ISR on rising
-  if (((r_init_value == 0) && (r_status == 0)) || ((r_init_value == 1) && (r_status == 1))) readR();
-}
-*/
-
 encoders::encoders() {
+  LENCA = 2;
+  LENCB = 7;
+  RENCA = 3;
+  RENCB = 4;
   posL = 0;
   posR = 0;
 }
 
 void encoders::SETUP() {
-  Serial.begin(9600);
   pinMode(RENCA, INPUT);
   pinMode(RENCB, INPUT);
   pinMode(LENCA, INPUT);
   pinMode(LENCB, INPUT);
   attachInterrupt(digitalPinToInterrupt(LENCA), readL, RISING);
   attachInterrupt(digitalPinToInterrupt(RENCA), readR, RISING);
-  /* // Enable pin change interrupt for pin 8 (RENCA)
-  PCICR |= B00000001;
-  PCMSK0 = 1 << PCINT0;
-  Serial.println("BEGIN: RENCA is " + (String)digitalRead(RENCA) + " LENCA is " + (String)digitalRead(LENCA));
-  */
 }
 
 void encoders::readEncoderR() {
@@ -77,3 +59,17 @@ int encoders::getPosL() {
 }
 
 encoders Encoders = encoders();
+
+/* 
+int r_status, r_init_value;
+  // Enable pin change interrupt for pin 8 (RENCA)
+  PCICR |= B00000001;
+  PCMSK0 = 1 << PCINT0;
+  Serial.println("BEGIN: RENCA is " + (String)digitalRead(RENCA) + " LENCA is " + (String)digitalRead(LENCA));
+
+ISR (PCINT0_vect) {
+  r_status = digitalRead(RENCA);
+  // Only call ISR on rising
+  if (((r_init_value == 0) && (r_status == 0)) || ((r_init_value == 1) && (r_status == 1))) readR();
+}
+*/

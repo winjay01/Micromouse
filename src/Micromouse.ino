@@ -1,27 +1,33 @@
 #include <math.h>
-#include "queue.h"
 #include "motors.h"
 #include "encoders.h"
 #include "sensors.h"
 #include "pid_control.h"
+#include "traverse.h"
 
 #define STD_D 1000
-// PID constants: Distance | Angle | Turn
-const float Kp[3] = {2, 3, 0};
-const float Ki[3] = {0, 0, 0};
-const float Kd[3] = {0.2, 0, 0};
+#define FORWARD 0
+#define LEFT 1
+#define RIGHT 2
+
+int drove;
 
 void setup() {
+  Serial.begin(9600);
   Sensors.SETUP();
   Motors.SETUP();
   Encoders.SETUP();
-  PD.SETUP(Kp, Ki, Kd); `
   Sensors.blink(LED_BUILTIN, STD_D, 1);
+  drove = 0;
 }
 
 void loop() {
-  PD.control_loop();
-  Sensors.read_all();
+  //PD.control_loop(LEFT);
+  //Sensors.read_all();
+  if (!drove) {
+    run();
+    drove = 1;
+  }
 }
 
 void right_90(int speed) {
@@ -29,7 +35,7 @@ void right_90(int speed) {
   int init = currPos;
   Motors.turn_right(speed);
   while ((currPos - init) < 20) {
-    Serial.println(currPos);
+    //Serial.println(currPos);
     currPos = Encoders.getPosL();
   }
   delay(100);

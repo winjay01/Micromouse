@@ -3,19 +3,17 @@
 #include "encoders.h"
 #include <math.h>
 
-const int LPWM1 = 10;
-const int LPWM2 = 11;
-const int RPWM1 = 9;
-const int RPWM2 = 6;
-
-const int FORWARD = 1;
-const int REVERSE = -1;
-
 motors::motors() {
+  FORWARD = 1;
+  REVERSE = -1;
   F = 0;
   B = 1;
   L = 2;
   R = 3;
+  LPWM1 = 10;
+  LPWM2 = 11;
+  RPWM1 = 9;
+  RPWM2 = 6;
 }
 
 void motors::SETUP() {
@@ -91,11 +89,21 @@ void motors::drive_pos(int enc_steps, int dir, int speed) {
   drive(dir, speed);
   int steps = fabs(Encoders.getPosR() - pos);
   while(steps < enc_steps) {
-    Serial.println("Pos L: " + (String)Encoders.getPosL() + " Pos R: " + (String)Encoders.getPosR());
+    /*
+    Serial.print(F("Pos L: "));
+    Serial.print(Encoders.getPosL());
+    Serial.print(F(" Pos R: "));
+    Serial.println(Encoders.getPosR());
+    */
     steps = fabs(Encoders.getPosR() - pos);
   }
   stop();
-  Serial.println("END*** Pos L: " + (String)Encoders.getPosL() + " Pos R: " + (String)Encoders.getPosR());
+  /*
+  Serial.print(F("END*** Pos L: "));
+  Serial.print(Encoders.getPosL());
+  Serial.print(F(" Pos R: "));
+  Serial.println(Encoders.getPosR());
+  */
   digitalWrite(LED_BUILTIN, LOW);
 }
 

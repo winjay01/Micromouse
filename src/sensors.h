@@ -3,6 +3,7 @@
 
 struct sensors {
   int IR_L, IR_R, IR_FL, IR_FR;
+  int LED_L, LED_R;
   int TIMER;
 
   sensors();
