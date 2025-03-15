@@ -6,7 +6,7 @@
 motors::motors() {
   FORWARD = 1;
   REVERSE = -1;
-  F = 0;
+  FW = 0;
   B = 1;
   L = 2;
   R = 3;
@@ -77,7 +77,7 @@ void motors::reverse(int speed) {
 }
 
 void motors::drive(int dir, int speed) {
-  if (dir == F) forward(speed);
+  if (dir == FW) forward(speed);
   else if (dir == B) reverse(speed);
   else if (dir == L) turn_left(speed);
   else if (dir == R) turn_right(speed);

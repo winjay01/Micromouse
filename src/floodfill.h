@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include "queue.h"
 
-#define MAZE_DIM 16
+#define MAZE_DIM 4
 #define MAZE_SIZE MAZE_DIM*MAZE_DIM
 
+// Maze representation: 16x16 unit grid
 int walls[MAZE_SIZE]; // walls[i][j] = NSEW means cell (i,j) has walls around it according to bitmap
-int path_cost[MAZE_DIM][MAZE_DIM];
+int path_cost[MAZE_DIM][MAZE_DIM]; // path_cost[i][j] = k means cell (i,j) has a path cost of k to the 4 center cells
 
 #define NORTH 0
 #define EAST 1
@@ -31,14 +32,14 @@ int wall_decode(int dir) {
 }
 
 // initially assume there are no walls in the maze
-void init_layout(/*int walls[MAZE_SIZE]*/) {
+void init_layout() {
   for (int i = 0; i < MAZE_SIZE; i++) {
     walls[i] = 0;
   }
 }
 
 // set all path costs to CLEAR (not yet set)
-void clear_costs(/*int path_cost[MAZE_DIM][MAZE_DIM]*/) {
+void clear_costs() {
   for (int i = 0; i < MAZE_DIM; i++) {
     for (int j = 0; j < MAZE_DIM; j++) {
       path_cost[i][j] = CLEAR; // 0 used for center
@@ -46,7 +47,7 @@ void clear_costs(/*int path_cost[MAZE_DIM][MAZE_DIM]*/) {
   }
 }
 
-void print_costs(/*int path_cost[MAZE_DIM][MAZE_DIM]*/) {
+void print_costs() {
   for (int i = 0; i < MAZE_DIM; i++) {
     for (int j = 0; j < MAZE_DIM; j++) {
       Serial.print(path_cost[i][j]);
@@ -57,7 +58,7 @@ void print_costs(/*int path_cost[MAZE_DIM][MAZE_DIM]*/) {
   }
 }
 
-void check_neighbors(int current_cell /*,int walls[MAZE_SIZE], int path_cost[MAZE_DIM][MAZE_DIM]*/) {
+void check_neighbors(int current_cell) {
   int row = current_cell / MAZE_DIM;
   int col = current_cell % MAZE_DIM;
   
@@ -85,7 +86,7 @@ void check_neighbors(int current_cell /*,int walls[MAZE_SIZE], int path_cost[MAZ
   return;
 }
 
-void floodfill(/*int walls[MAZE_SIZE], int path_cost[MAZE_DIM][MAZE_DIM]*/) {
+void floodfill() {
   // S0
   clear_costs();
   // Set path cost of center cells to 0
@@ -107,5 +108,5 @@ void floodfill(/*int walls[MAZE_SIZE], int path_cost[MAZE_DIM][MAZE_DIM]*/) {
     q.dequeue();
     check_neighbors(current_cell);
   } while(!q.empty());
-  //print_costs();
+  print_costs();
 }

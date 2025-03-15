@@ -54,7 +54,7 @@ void sensors::blink(int led_pin, int del, int count) {
     digitalWrite(led_pin, HIGH);
     delay(del);
     digitalWrite(led_pin, LOW);
-    delay(del);
+    //delay(del);
   }
 }
 

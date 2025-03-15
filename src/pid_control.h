@@ -13,8 +13,11 @@ struct pid_control {
   int DISTANCE, ANGLE, TURN;
 
   pid_control();
+  void RESET();
+  int error_signal(int mode);
   int control_signal(int mode, float dt);
   void control_loop(int dir);
+  int dir2mode(int dir);
 };
 
 extern pid_control PD;

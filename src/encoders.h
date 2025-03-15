@@ -8,6 +8,7 @@ struct encoders {
 
   encoders();
   void SETUP();
+  void RESET();
   void readEncoderR();
   void readEncoderL();
   int getPosR();

@@ -3,7 +3,7 @@
 
 struct motors {
   int FORWARD, REVERSE;
-  int F, B, L, R;
+  int FW, B, L, R;
   int LPWM1, LPWM2, RPWM1, RPWM2; // Motor +,- pins
 
   motors();

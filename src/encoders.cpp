@@ -28,6 +28,11 @@ void encoders::SETUP() {
   attachInterrupt(digitalPinToInterrupt(RENCA), readR, RISING);
 }
 
+void encoders::RESET() {
+  posL = 0;
+  posR = 0;
+}
+
 void encoders::readEncoderR() {
   int b = digitalRead(RENCB);
   if (b > 0) {

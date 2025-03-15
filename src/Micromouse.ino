@@ -6,38 +6,25 @@
 #include "traverse.h"
 
 #define STD_D 1000
-#define FORWARD 0
-#define LEFT 1
-#define RIGHT 2
 
-int drove;
+int directions[] = {PD.FORWARD, PD.LEFT, PD.FORWARD, PD.RIGHT, PD.FORWARD};
+int index;
+
+int test = 1;
 
 void setup() {
   Serial.begin(9600);
   Sensors.SETUP();
   Motors.SETUP();
   Encoders.SETUP();
+  index = 0;
   Sensors.blink(LED_BUILTIN, STD_D, 1);
-  drove = 0;
 }
 
 void loop() {
-  //PD.control_loop(LEFT);
-  //Sensors.read_all();
-  if (!drove) {
+  if (test) {
     run();
-    drove = 1;
+    //move(PD.FORWARD, 1);
+    test = 0;
   }
-}
-
-void right_90(int speed) {
-  int currPos = Encoders.getPosL();
-  int init = currPos;
-  Motors.turn_right(speed);
-  while ((currPos - init) < 20) {
-    //Serial.println(currPos);
-    currPos = Encoders.getPosL();
-  }
-  delay(100);
-  Motors.stop();
 }
