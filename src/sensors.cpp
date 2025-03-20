@@ -9,6 +9,9 @@ sensors::sensors() {
   LED_L = 8;
   LED_R = 12;
   TIMER = 20;
+  threshold = 240;
+  f_threshold = 250;
+  f_limit = 150;
 }
 
 void sensors::SETUP() {
@@ -20,13 +23,13 @@ void sensors::SETUP() {
 int sensors::read_all() {
   int bitmap = 0;
   int front = 0;
-  if (read_sensor(IR_L)) bitmap += 1;
-  if (read_sensor(IR_R)) bitmap += 2;
-  if (read_sensor(IR_FL)) {
+  if (read_sensor(IR_L) > threshold) bitmap += 1;
+  if (read_sensor(IR_R) > threshold) bitmap += 2;
+  if (read_sensor(IR_FL) > f_threshold) {
     bitmap += 4;
     front = 1;
   }
-  if (read_sensor(IR_FR)) {
+  if (read_sensor(IR_FR) > f_threshold) {
     bitmap += 8;
     front = 1;
   }
@@ -34,19 +37,17 @@ int sensors::read_all() {
   return bitmap;
 }
 
+int sensors::read_front() {
+  int front = ((read_sensor(IR_FL) > f_threshold) && (read_sensor(IR_FR) > f_threshold));
+  digitalWrite(LED_L, front);
+  return front;
+}
+
 int sensors::read_sensor(int sensor_num) {
   int led_pin = get_pin(sensor_num);
-  // read IR sensor
   int reading = analogRead(sensor_num);
-  //Serial.println(reading);
-  if (reading > 150) {
-    if (led_pin != LED_BUILTIN) digitalWrite(led_pin, HIGH);
-    return 1;
-  }
-  else {
-    if (led_pin != LED_BUILTIN) digitalWrite(led_pin, LOW);
-    return 0;
-  }
+  if (led_pin != LED_BUILTIN) digitalWrite(led_pin, (reading > threshold));
+  return reading;
 }
 
 void sensors::blink(int led_pin, int del, int count) {
@@ -54,7 +55,7 @@ void sensors::blink(int led_pin, int del, int count) {
     digitalWrite(led_pin, HIGH);
     delay(del);
     digitalWrite(led_pin, LOW);
-    //delay(del);
+    delay(del);
   }
 }
 

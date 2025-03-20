@@ -1,14 +1,8 @@
 #include <math.h>
-#include "motors.h"
-#include "encoders.h"
-#include "sensors.h"
-#include "pid_control.h"
 #include "traverse.h"
+#include "encoders.h"
 
 #define STD_D 1000
-
-int directions[] = {PD.FORWARD, PD.LEFT, PD.FORWARD, PD.RIGHT, PD.FORWARD};
-int index;
 
 int test = 1;
 
@@ -17,14 +11,21 @@ void setup() {
   Sensors.SETUP();
   Motors.SETUP();
   Encoders.SETUP();
-  index = 0;
   Sensors.blink(LED_BUILTIN, STD_D, 1);
 }
 
 void loop() {
+  //PD.control_loop(PD.FORWARD);
   if (test) {
+    //Motors.drive_for(STD_D, Motors.FW, 70);
+    //wall_int(6, SOUTH, FORWARD);
+    //wall_int(6, EAST, FORWARD);
+    //print_walls();
+    //floodfill();
     run();
     //move(PD.FORWARD, 1);
     test = 0;
   }
+  //Sensors.read_all();
+  //delay(Sensors.TIMER);
 }

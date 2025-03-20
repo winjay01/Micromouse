@@ -1,17 +1,19 @@
 #include <Arduino.h>
 #include "pid_control.h"
+#include "motors.h"
+#include "encoders.h"
+#include "sensors.h"
 
 #define DIR_SIZE 5
 
-int reset = 0, reached = 0;
+int reset = 0, reached = 0, stopping = 0;
 
 void steady_state(int dir) {
   int ti = millis();
   int t = ti;
-  while((t - ti) < 500) {
+  while((t - ti) < 750) {
     PD.control_loop(dir);
-    if (PD.error_signal(PD.dir2mode(dir)) == 0) digitalWrite(LED_BUILTIN, HIGH);
-    else digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, (PD.error_signal(PD.dir2mode(dir)) == 0.0));
     t = millis();
   }
 }
@@ -22,6 +24,7 @@ void halt(int dir) {
   Motors.stop();
   reset = 0;
   digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(Sensors.LED_L, LOW);
 }
 
 void check_reset() {
@@ -31,18 +34,33 @@ void check_reset() {
   }
 }
 
-void move(int dir, int cell_count) {
-  for (int c = 0; c < cell_count; c++) {
+int destination_check(int dist_mode) {
+  if (dist_mode == PD.DISTANCE0) return ((fabsf(PD.error_signal(PD.DISTANCE)) == 0.0) && (fabsf(PD.error_signal(PD.ANGLE)) == 0.0));
+  if (dist_mode == PD.DISTANCE1) return ((fabsf(PD.error_signal(PD.DISTANCE)) < 10.0) && (fabsf(PD.error_signal(PD.ANGLE)) == 0.0));
+  return 0;
+}
+
+int move(int dir, int cell_count) {
+  PD.set_target(cell_count);
+  while (!reached) {
+    check_reset();
+    PD.control_loop(dir);
+    if (destination_check(PD.DISTANCE)) {
+      halt(dir);
+      cell_count = PD.get_curr_cells(); // In case we stopped early due to wall in path
+    }
+  }
+  reached = 0;
+  Sensors.blink(Sensors.LED_R, 500, cell_count);
+  return cell_count;
+}
+
+void turn(int dir, int count) {
+  for (int c = 0; c < count; c++) {
     while (!reached) {
-      /*
-      Serial.print("Moving in direction: ");
-      if (dir == PD.FORWARD) Serial.println("FORWARD");
-      if (dir == PD.LEFT) Serial.println("LEFT");
-      if (dir == PD.RIGHT) Serial.println("RIGHT");
-      */
       check_reset();
       PD.control_loop(dir);
-      if (PD.error_signal(PD.dir2mode(dir)) == 0) halt(dir);
+      if (fabsf(PD.error_signal(PD.TURN)) == 0.0) halt(dir);
     }
     reached = 0;
   }

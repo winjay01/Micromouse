@@ -4,41 +4,70 @@
 #include "movement.h"
 
 int curr_dir; // which way are we facing with respect to center
-// Sensor directions
-const int FORWARD = 0;
-const int LEFT = 1;
-const int RIGHT = 2;
+
+void print_path_cells(byte path[MAZE_SIZE]) {
+  int i = 0;
+  Serial.println(F("PATH:"));
+  do { 
+    Serial.print(path[i++]);
+    Serial.print(F(" "));
+  } while (path[i] != 0);
+  Serial.println();
+}
+
+int get_next_dir(int cell, int next_cell) {
+  if (next_cell == (cell - MAZE_DIM)) return NORTH;
+  else if (next_cell == (cell + 1)) return EAST;
+  else if (next_cell == (cell + MAZE_DIM)) return SOUTH;
+  else if (next_cell == (cell - 1)) return WEST;
+}
+
+// Get next straight path
+int get_num_cells(byte path[MAZE_SIZE], int cell_num) {
+  int init_cell_num = cell_num;
+  int cell = path[cell_num];
+  int next_cell = path[cell_num + 1];
+  int dir = get_next_dir(cell, next_cell);
+  int init_dir = dir;
+  while ((next_cell != 0) && (init_dir == dir)) {
+    cell_num += 1;
+    cell = next_cell;
+    next_cell = path[cell_num + 1];
+    dir = get_next_dir(cell, next_cell);
+  } 
+  return (cell_num - init_cell_num);
+}
 
 void reorient(int dir) {
   if (dir == NORTH) {
     switch(curr_dir) {
       case NORTH: break;
-      case EAST: move(PD.LEFT, 1); break;
-      case SOUTH: move(PD.LEFT, 2); break;
-      case WEST: move(PD.RIGHT, 1); break;
+      case EAST: turn(PD.LEFT, 1); break;
+      case SOUTH: turn(PD.LEFT, 2); break;
+      case WEST: turn(PD.RIGHT, 1); break;
     }
   }
   if (dir == EAST) {
     switch(curr_dir) {
-      case NORTH: move(PD.RIGHT, 1); break;
+      case NORTH: turn(PD.RIGHT, 1); break;
       case EAST: break;
-      case SOUTH: move(PD.LEFT, 1); break;
-      case WEST: move(PD.RIGHT, 2); break;
+      case SOUTH: turn(PD.LEFT, 1); break;
+      case WEST: turn(PD.RIGHT, 2); break;
     }
   }
   if (dir == SOUTH) {
     switch(curr_dir) {
-      case NORTH: move(PD.LEFT, 2); break;
-      case EAST: move(PD.RIGHT, 1); break;
+      case NORTH: turn(PD.LEFT, 2); break;
+      case EAST: turn(PD.RIGHT, 1); break;
       case SOUTH: break;
-      case WEST: move(PD.LEFT, 1); break;
+      case WEST: turn(PD.LEFT, 1); break;
     }
   }
   if (dir == WEST) {
     switch(curr_dir) {
-      case NORTH: move(PD.LEFT, 1); break;
-      case EAST: move(PD.LEFT, 2); break;
-      case SOUTH: move(PD.RIGHT, 1); break;
+      case NORTH: turn(PD.LEFT, 1); break;
+      case EAST: turn(PD.LEFT, 2); break;
+      case SOUTH: turn(PD.RIGHT, 1); break;
       case WEST: break;
     }
   }
@@ -47,65 +76,32 @@ void reorient(int dir) {
 int decode_sensors(int sensor_num) {
 }
 
-void clear_path(int path[MAZE_SIZE]) {
-  for (int i = 0; i < MAZE_SIZE; i++) {
-    path[i] = -1;
+void clear_path(byte path[MAZE_SIZE], int start_from) {
+  for (int i = start_from; i < MAZE_SIZE; i++) {
+    path[i] = 0;
   }
 }
 
-// Add detected wall to representation of maze layout
-void update_layout(int cell, int dir) {
-  if (!check_bit(walls[cell], dir)) walls[cell] += wall_decode(dir);
-}
-
-// Figure out where in maze the detected wall is
-void wall_int(int current_cell, int dir, int sensor_dir) {
-  if (sensor_dir == FORWARD) {
-    switch (dir) {
-      case NORTH: update_layout(current_cell, NORTH); break;
-      case EAST: update_layout(current_cell, EAST); break;
-      case SOUTH: update_layout(current_cell, SOUTH); break;
-      case WEST: update_layout(current_cell, WEST); break;
-    }
-  }
-  else if (sensor_dir == LEFT) {
-    switch (dir) {
-      case NORTH: update_layout(current_cell, WEST); break;
-      case EAST: update_layout(current_cell, NORTH); break;
-      case SOUTH: update_layout(current_cell, EAST); break;
-      case WEST: update_layout(current_cell, SOUTH); break;
-    }
-  }
-  else if (sensor_dir == RIGHT) {
-    switch (dir) {
-      case NORTH: update_layout(current_cell, EAST); break;
-      case EAST: update_layout(current_cell, SOUTH); break;
-      case SOUTH: update_layout(current_cell, WEST); break;
-      case WEST: update_layout(current_cell, NORTH); break;
-    }
-  }
-}
-
-int in_path(int cell, int path[MAZE_SIZE]) {
+int in_path(int cell, byte path[MAZE_SIZE]) {
   for (int i = 0; i < MAZE_SIZE; i++) {
     if (path[i] == cell) return 1;
   }
   return 0;
 }
 
-void print_path(/*int path_cost[MAZE_DIM][MAZE_DIM],*/ int path[MAZE_SIZE]) {
-  for (int i = 0; i < 5; i++) Serial.println();
+void print_path(byte path[MAZE_SIZE]) {
+  for (int i = 0; i < 2; i++) Serial.println();
   int cell;
   for (int i = 0; i < MAZE_DIM; i++) {
     for (int j = 0; j < MAZE_DIM; j++) {
       cell = i*MAZE_DIM + j;
       if (in_path(cell, path)) {
-        Serial.print("*  ");
+        Serial.print(F("*  "));
       }
       else {
         Serial.print(path_cost[i][j]);
-        Serial.print(" ");
-        if (path_cost[i][j] <= 9) Serial.print(" "); // To line up w/ 2 digit nums
+        Serial.print(F(" "));
+        if (path_cost[i][j] <= 9) Serial.print(F(" ")); // To line up w/ 2 digit nums
       }
     }
     Serial.println();
@@ -122,88 +118,153 @@ int center_reached(int current_cell) {
 }
 
 // Find adjacent cell with lowest path cost
-int min_i(int row, int col) {
+int min_dir(int row, int col) {
   int min_c = MAZE_SIZE;
-  int min_cell = row*MAZE_DIM + col;
+  int min_d = 5;
+  int current_cell = row*MAZE_DIM + col;
 
   // Check cell below
   if (row < (MAZE_DIM - 1)) {
-    if (path_cost[row + 1][col] < min_c) {
+    if (!check_bit(walls[current_cell], SOUTH) && path_cost[row + 1][col] < min_c) {
       min_c = path_cost[row + 1][col];
-      min_cell = SOUTH;
+      min_d = SOUTH;
     }
   }
   // Check cell to left
   if (col > 0) {
-    if (path_cost[row][col - 1] < min_c) {
+    if (!check_bit(walls[current_cell], WEST) && path_cost[row][col - 1] < min_c) {
       min_c = path_cost[row][col - 1];
-      min_cell = WEST;
+      min_d = WEST;
     }
   }
   // Check cell above
   if (row > 0) {
-    if (path_cost[row - 1][col] < min_c) {
+    if (!check_bit(walls[current_cell], NORTH) && path_cost[row - 1][col] < min_c) {
       min_c = path_cost[row - 1][col];
-      min_cell = NORTH;
+      min_d = NORTH;
     }
   }
   // Check cell to right
   if (col < (MAZE_DIM - 1)) {
-    if (path_cost[row][col + 1] < min_c) {
+    if (!check_bit(walls[current_cell], EAST) && path_cost[row][col + 1] < min_c) {
       min_c = path_cost[row][col + 1];
-      min_cell = EAST;
+      min_d = EAST;
     }
   }
-  return min_cell;
+  return min_d;
 }
 
 // Continuously move to adjacent cell with lowest path cost until wall is detected or center is reached
-int traverse(int current_cell, int* i, int path[MAZE_SIZE]) {
+int find_path(int current_cell, int i, byte path[MAZE_SIZE]) {
+  int init_i = i;
   int row = current_cell / MAZE_DIM;
   int col = current_cell % MAZE_DIM;
+  path[i++] = current_cell;
 
-  while (!check_bit(walls[current_cell], min_i(row, col))) {
-    path[*i] = current_cell;
-    *i = *i + 1;
-
-    int dir = min_i(row, col);
-    Serial.print("Current cell: ");
-    Serial.print(row);
-    Serial.print(" ");
-    Serial.print(col);
-    Serial.print(" , Facing: ");
-    Serial.print(dir);
-    reorient(dir); // Face this direction
+  while (!center_reached(current_cell)) {
+    int dir = min_dir(row, col);
     switch (dir) {
       case NORTH: current_cell = (row-1)*MAZE_DIM + col; break;
       case EAST: current_cell = row*MAZE_DIM + (col + 1); break;
       case SOUTH: current_cell = (row+1)*MAZE_DIM + col; break;
       case WEST: current_cell = row*MAZE_DIM + (col - 1); break;
+      default: Serial.print(F("No dir found, cell: ")); Serial.print(row); Serial.print(F(" ")); Serial.println(col); break;
     }
+    if (in_path(current_cell, path))  { // Backtracking 
+      clear_path(path, (i - 1));
+      print_path_cells(path);
+      return (i - 2);
+    }
+    path[i++] = current_cell;
     row = current_cell / MAZE_DIM;
     col = current_cell % MAZE_DIM;
-    Serial.print(" , Moving to cell ");
-    Serial.print(row);
-    Serial.print(" ");
-    Serial.println(col);
-    move(PD.FORWARD, 1); // Move to next cell
+  }
+  print_path_cells(path);
+  return init_i;
+}
 
-    if (center_reached(current_cell)) return current_cell;
+int traverse(int current_cell, int* i, byte path[MAZE_SIZE]) {
+  int next_path_length, dir, next_cell, actual_length;
+  int backtracking = 0;
+  if (!in_path(current_cell, path)) { // Have to backtrack
+    next_path_length = 1;
+    backtracking = 1;
+  }
+  else next_path_length = get_num_cells(path, *i);
+
+  int row = current_cell / MAZE_DIM;
+  int col = current_cell % MAZE_DIM;
+  while (next_path_length > 0) {
+    delay(1000);
+    if (!backtracking) {
+      dir = get_next_dir(current_cell, path[*i + 1]);
+      next_cell = path[*i + next_path_length];
+    }
+    else {
+      dir = get_next_dir(current_cell, path[*i]);
+      next_cell = path[*i];
+    }
+
+    Serial.print(F("Current cell: "));
+    Serial.print(row);
+    Serial.print(F(" "));
+    Serial.print(col);
+    Serial.print(F(" , Facing: "));
+    Serial.print(dir);
+    //reorient(dir); // Face this direction
+    curr_dir = dir;
+
+    row = next_cell / MAZE_DIM;
+    col = next_cell % MAZE_DIM;
+    Serial.print(F(" , Moving to cell "));
+    Serial.print(row);
+    Serial.print(F(" "));
+    Serial.println(col);
+
+    //actual_length = move(PD.FORWARD, next_path_length); // Move to next cell
+    if (!backtracking) {
+      switch (current_cell) {
+        case 0: actual_length = 3; break;
+        case 3*MAZE_DIM: actual_length = 0; break;
+        default: actual_length = next_path_length; break;
+      }
+      *i = *i + actual_length;
+    }
+    else {
+      actual_length = 1;
+    }
+    current_cell = path[*i];
+    Serial.print(F("Actually moved to cell "));
+    Serial.print(current_cell / MAZE_DIM);
+    Serial.print(F(" "));
+    Serial.println(current_cell % MAZE_DIM);
+    
+    if (actual_length < next_path_length) { // Find new path
+      wall_int(current_cell, curr_dir, FORWARD); // Update layout
+      clear_path(path, (*i + 1));
+      return current_cell;
+    }
+    next_path_length = get_num_cells(path, *i);
   }
   return current_cell;
 }
 
 void run() {
-  int path[MAZE_SIZE]; // save path traversed
-  clear_path(path);
+  byte path[MAZE_SIZE]; // save path traversed
+  clear_path(path, 0);
   init_layout();
-  curr_dir = SOUTH;
+  curr_dir = SOUTH; // start facing right w/ respect center, no matter which corner robot is dropped in
   int current_cell = 0; // start at top left
   int i = 0; // tracks path length
 
   while(!center_reached(current_cell)) {
     floodfill();
-    current_cell = traverse(current_cell, &i, path);
+    i = find_path(current_cell, i, path);
+    //Serial.print(F("i = "));
+    //Serial.println(i);
     print_path(path);
+    current_cell = traverse(current_cell, &i, path);
+    //print_walls();
   }
+  Serial.println(F("Center reached!"));
 }

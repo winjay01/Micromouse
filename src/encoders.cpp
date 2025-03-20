@@ -54,12 +54,10 @@ void encoders::readEncoderL() {
 }
 
 int encoders::getPosR() {
-  //Serial.println(posR);
   return posR;
 }
 
 int encoders::getPosL() {
-  //Serial.println(posL);
   return posL;
 }
 

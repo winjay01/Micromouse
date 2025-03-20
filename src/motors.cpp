@@ -89,21 +89,9 @@ void motors::drive_pos(int enc_steps, int dir, int speed) {
   drive(dir, speed);
   int steps = fabs(Encoders.getPosR() - pos);
   while(steps < enc_steps) {
-    /*
-    Serial.print(F("Pos L: "));
-    Serial.print(Encoders.getPosL());
-    Serial.print(F(" Pos R: "));
-    Serial.println(Encoders.getPosR());
-    */
     steps = fabs(Encoders.getPosR() - pos);
   }
   stop();
-  /*
-  Serial.print(F("END*** Pos L: "));
-  Serial.print(Encoders.getPosL());
-  Serial.print(F(" Pos R: "));
-  Serial.println(Encoders.getPosR());
-  */
   digitalWrite(LED_BUILTIN, LOW);
 }
 
