@@ -1,7 +1,10 @@
 #include "queue.h"
+#include <Arduino.h>
+
+byte items[32];
 
 queue::queue() {
-  MAX_QUEUE = 64;
+  MAX_QUEUE = 32;
   head = -1;
   tail = -1;
 }

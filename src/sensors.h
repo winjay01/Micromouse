@@ -5,7 +5,7 @@ struct sensors {
   int IR_L, IR_R, IR_FL, IR_FR;
   int LED_L, LED_R;
   int TIMER;
-  int threshold, f_threshold, f_limit;
+  int limit, threshold, f_threshold, f_limit;
 
   sensors();
   void SETUP();
@@ -14,6 +14,7 @@ struct sensors {
   int read_all();
   void blink(int led_pin, int del, int count);
   int get_pin(int sensor_num);
+  void leds_off();
 };
 
 extern sensors Sensors;

@@ -12,7 +12,7 @@ struct pid_control {
   // Modes
   int DISTANCE0, ANGLE0, TURN, ANGLE1, ANGLE2, DISTANCE1;
   int ANGLE, DISTANCE; // Will be one of ANGLE0, ANGLE1, ANGLE2; DISTANCE0, DISTANCE1
-  int pathfinding;
+  int pathfinding, recentering;
 
   pid_control();
   void set_target(int num_cells);
@@ -20,13 +20,13 @@ struct pid_control {
   void RESET();
   int get_curr_steps();
   int get_curr_cells();
-  void stop_in_place();
   float error_signal(int mode);
   float control_signal(int mode, float dt);
   void control_loop(int dir);
   int dir2mode(int dir);
   int distance_mode();
   int angle_mode();
+  void stop_early();
 };
 
 extern pid_control PD;

@@ -1,6 +1,10 @@
 #include "Arduino.h"
 #include "sensors.h"
 
+// Robot is 11.5 cm long, 10.5 cm wide
+// So front threshold is 3.25 cm,
+// Side threshold is 3.75 cm
+
 sensors::sensors() {
   IR_R = A0; // Right
   IR_FR = A2; // Front Right
@@ -9,9 +13,10 @@ sensors::sensors() {
   LED_L = 8;
   LED_R = 12;
   TIMER = 20;
-  threshold = 240;
-  f_threshold = 250;
-  f_limit = 150;
+  limit = 170;
+  threshold = 260; // 3.75 cm
+  f_threshold = 290; // 3.25 cm
+  f_limit = 120;
 }
 
 void sensors::SETUP() {
@@ -22,18 +27,12 @@ void sensors::SETUP() {
 
 int sensors::read_all() {
   int bitmap = 0;
-  int front = 0;
-  if (read_sensor(IR_L) > threshold) bitmap += 1;
-  if (read_sensor(IR_R) > threshold) bitmap += 2;
-  if (read_sensor(IR_FL) > f_threshold) {
-    bitmap += 4;
-    front = 1;
-  }
-  if (read_sensor(IR_FR) > f_threshold) {
-    bitmap += 8;
-    front = 1;
-  }
-  digitalWrite(LED_BUILTIN, front);
+  int fl = read_sensor(IR_FL);
+  int fr = read_sensor(IR_FR);
+  if (read_sensor(IR_L) > limit) bitmap += 2;
+  if (read_sensor(IR_R) > limit) bitmap += 4;
+  if (fl > f_limit) bitmap += 8;
+  if (fr > f_limit) bitmap += 1;
   return bitmap;
 }
 
@@ -46,7 +45,7 @@ int sensors::read_front() {
 int sensors::read_sensor(int sensor_num) {
   int led_pin = get_pin(sensor_num);
   int reading = analogRead(sensor_num);
-  if (led_pin != LED_BUILTIN) digitalWrite(led_pin, (reading > threshold));
+  if (led_pin != LED_BUILTIN) digitalWrite(led_pin, (reading > limit));
   return reading;
 }
 
@@ -65,6 +64,12 @@ int sensors::get_pin(int sensor_num) {
   else if (sensor_num == IR_L) led_pin = LED_L;
   else if (sensor_num = IR_R) led_pin = LED_R; 
   return led_pin;
+}
+
+void sensors::leds_off() {
+  digitalWrite(LED_L, LOW);
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 sensors Sensors = sensors();

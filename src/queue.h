@@ -4,7 +4,6 @@
 struct queue {
   int MAX_QUEUE;
   int head, tail;
-  int items[64];
 
   queue();
   bool empty();
